@@ -44,7 +44,6 @@ def draw_grid():
                 if get_bonus(spt)==2:
                     two.stamp(screen,transform(spt),(zoom,zoom))
 
-
 two=Bonus("2x",(0,0,100))
 def change_zoom(zoom_slide_rate):
     global zoom,shift
@@ -99,6 +98,7 @@ def try_to_place():
     if not actual_hand:
         player1.score+=6 #Bonus for finishing the game first
         game_over()
+    pass
 def click_player_button(i):
     global player_name_selected
     if player_name_selected >= 0:
