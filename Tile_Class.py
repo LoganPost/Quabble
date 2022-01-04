@@ -69,13 +69,11 @@ class Tile():
         screen.blit(surf,actpos)
     def show_in_hand(self,screen,index):
         if self.selected:
-            # surf = pg.transform.scale(self.surf, V((120, 120)))
             pos = hand_pos(index)-(5,5)
             apos = hand_pos(index)-(3,-1)
             surf=self.selected_surf
             shadow=self.selected_shadow
         else:
-            # surf = pg.transform.scale(self.surf, V((110,110)))
             pos = hand_pos(index)
             apos = hand_pos(index)+(2,6)
             surf=self.hand_surf
@@ -160,7 +158,6 @@ class Tile():
             points.append(p1[i])
             points.append(p2[i])
         imf = image_fill*1.3
-        # points=p1
         for i in range(len(points)):
             points[i] *= imf
             points[i] += (V((1, 1)) * (1 - imf) / 2)
@@ -191,14 +188,8 @@ class Tile():
                 p *= imf
                 p += ((1 - imf) / 2, (1 - imf) / 2)
                 p*=ts[0]
-                # pg.draw.ellipse(self.surf,(255,255,0),pg.Rect(p,(20,20)))
             points=[(p*imf+((1-imf)/2,(1-imf)/2))*ts[0] for p in polypoints]
             pg.draw.polygon(self.surf,color,points)
-        # for i,c in enumerate(ccent):
-        #     pg.draw.ellipse(self.surf,(255,0,0),pg.Rect((c*imf+((1-imf)/2,(1-imf)/2))*ts[0],(20,20)))
-        #     pg.draw.ellipse(self.surf, (255, 0, 0),pg.Rect(((c+.1*directions[i]) * imf + ((1 - imf) / 2, (1 - imf) / 2)) * ts[0], (20, 20)))
-        # pg.draw.rect(self.surf,color,pg.Rect(ts/2-V((.5-crad,crad))*ts[0]*imf,V((1-2*crad,2*crad))*ts[0]*imf))
-        # pg.draw.rect(self.surf,color,pg.Rect(ts/2-V((crad,.5-crad))*ts[0]*imf,V((2*crad,1-2*crad))*ts[0]*imf))
     def draw_triangle(self,color):
         crmp=.25
         p=[(.5,.5-3**(1/2)/4),(0,.5+3**(1/2)/4),(1,.5+3**(1/2)/4)]
