@@ -1,6 +1,6 @@
 import socket
 from _thread import *
-from player import Player
+from Player_Class import Player
 import pickle
 import sys
 
