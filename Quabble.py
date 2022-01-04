@@ -10,6 +10,7 @@ from Board_Class import Board,make_board,get_bonus
 from Button_Class import Button,TextBox,Bonus
 import pickle
 
+quirkle_length=6
 # pickle.dump(["" for i in range(4)],open("player_names.dat",'wb'))
 
 def transform(point):
@@ -22,8 +23,8 @@ def inverse_transform(point):
 
 def get_bag():
     bag = []
-    for i, color in enumerate(tile_colors[:6]):
-        for j, shape in enumerate(tile_shapes[:6]):
+    for i, color in enumerate(tile_colors[:quirkle_length]):
+        for j, shape in enumerate(tile_shapes[:quirkle_length]):
             bag.append(Tile(shape, color))
             bag.append(Tile(shape, color))
             bag.append(Tile(shape, color))
@@ -95,6 +96,9 @@ def try_to_place():
         player1.score+=score
         show_player_buttons[turn].changeText("{}: {}".format(player1.name,player1.score))
         # print("Score is: {}".format(B.score(spots)))
+    if not actual_hand:
+        player1.score+=6 #Bonus for finishing the game first
+        game_over()
 def click_player_button(i):
     global player_name_selected
     if player_name_selected >= 0:
@@ -117,6 +121,15 @@ def update_legality():
         place_button.changeColor((150, 50, 50))
         current_score_box.changeText("Move score: ")
 
+def game_over():
+    screen.blit(helv.render("Game Over",True,(0,0,0)),window_size/2)
+    pg.display.update()
+    while True:
+        for event in pg.event.get():
+            if event.type==pg.QUIT:
+                pg.quit()
+                exit()
+        clock.tick(60)
 
 if False:
     my_list=Board([[None for i in range(3)] for j in range(4)])
