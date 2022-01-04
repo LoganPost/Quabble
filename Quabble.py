@@ -163,25 +163,11 @@ turn=0
 tile_colors=["red","orange","yellow","green","blue","purple","teal"]
 tile_shapes=["square","diamond","ninja","star","circle","clover","triangle"]
 
-
-# test_tile=Tile("square","red")
-# test_tile.grid_pos=V((0,1))
-# test_2=Tile("diamond","blue")
-# test_3=Tile("ninja","purple")
-# test_3.grid_pos=V((1,1))
-# test_4=Tile("star","green")
-# test_4.grid_pos=V((1,0))
-# t5=Tile("circle","yellow");  t5.grid_pos=V((2,0))
-# t6=Tile("clover","orange"); t6.grid_pos=V((2,1))
-# tiles=[test_tile,test_2,test_3,test_4,t5,t6]
-
 min_dx, min_dy = (inverse_transform(origin) - (1, 1)).intify()
 max_dx, max_dy = (inverse_transform(window_size) + (1, 1)).intify()
 screen.blit(background, origin)
 pg.display.update()
 bag=get_bag()
-
-
 
 key_numbers={
     113:"q", 119:"w",101:"e",114:"r",
@@ -193,13 +179,6 @@ key_numbers={
 capitalize_dict={"q":"Q","w":"W","e":"E","r":"R","t":"T","y":"Y","u":"U","i":"I","o":"O",
     "p":"P","a":"A","s":"S","d":"D","f":"F","g":"G","h":"H","j":"J","k":"K","l":"L","z":"Z",
     "x":"X","c":"C","v":"V","b":"B","n":"N","m":"M"," ":" "}
-
-# tiles=[]
-# for i,shape in enumerate(tile_shapes):
-#     for j,color in enumerate(tile_colors):
-#         tiles.append(Tile(shape,color))
-#         tiles[-1].grid_pos+=(i,j)
-#         tiles[-1].grid_pos -=(3,3)
 
 hand_rects=[pg.Rect((window_size[0]/2+130*(index-3)+10,window_size[1]-130),(110,110)) for index in range(6)]
 
@@ -250,7 +229,7 @@ tile_click=False
 countdown_length=50
 counting_down=False
 game_state="title"
-# current_score=0
+
 current_score_box=TextBox("Move score: ",(0,0,0))
 current_score_box.center((window_size[0]/2,20))
 
@@ -331,30 +310,6 @@ while True:
                     B.offset=V((0,0))
                     B.center=V((.5,.5))
                     game_state="title"
-
-
-            elif event.type==pg.KEYUP:
-                if event.key==pg.K_w:
-                    wDown=False
-                elif event.key == pg.K_a:
-                    aDown = False
-                elif event.key == pg.K_UP:
-                    upDown = False
-                elif event.key == pg.K_DOWN:
-                    downDown = False
-                elif event.key == pg.K_LEFT:
-                    leftDown = False
-                elif event.key==pg.K_d:
-                    dDown=False
-                elif event.key==pg.K_RIGHT:
-                    rightDown=False
-                elif event.key==pg.K_s:
-                    sDown=False
-                elif event.key==pg.K_DOWN:
-                    downDown=False
-                elif event.key==pg.K_SPACE:
-                    space_pressed=False
-                pass
         elif game_state=="next turn":
             if event.type==pg.MOUSEBUTTONDOWN:
                 mpos=pg.mouse.get_pos()
