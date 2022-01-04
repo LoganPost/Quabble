@@ -5,14 +5,17 @@ from math import sin, cos
 # from Sprite_Classes import Player
 from Player_Class import Player
 from random import random as rand
-from Tile_Class import Tile,waiting_fill
 from Board_Class import Board,make_board,get_bonus
 from Button_Class import Button,TextBox,Bonus
 import pickle
 
 quirkle_length=6
 # pickle.dump(["" for i in range(4)],open("player_names.dat",'wb'))
+pg.init()
+window_size=V((1100,600))
+screen=pg.display.set_mode(window_size)
 
+from Tile_Class import Tile,waiting_fill
 def transform(point):
     global zoom,shift
     return V(point)*zoom+shift
@@ -141,13 +144,11 @@ B=Board([[None]])
 B.offset=V((0,0))
 B.center=V((.5,.5))
 
-pg.init()
-window_size=V((1000,600))
+
 zoom=100
 zoom_slide_rate=1.1
 clock=pg.time.Clock()
 shift=window_size/2
-screen=pg.display.set_mode(window_size)
 origin=V((0,0))
 board_center=V((0.5,0.5))
 leftClicking=pg.mouse.get_pressed()[0]
@@ -233,6 +234,13 @@ game_state="title"
 
 current_score_box=TextBox("Move score: ",(0,0,0))
 current_score_box.center((window_size[0]/2,20))
+# images={}
+# for color in ["red", "orange", "yellow", "green", "blue", "purple", "teal"]:
+#     images[color]={}
+#     for shape in ["square", "diamond", "ninja", "star", "circle", "clover", "triangle"]:
+#         print(color,shape)
+#         images[color][shape] = pg.image.load("Tiles/{}_{}.png".format(color, shape)).convert_alpha()
+
 
 while True:
     for event in pg.event.get():
@@ -242,7 +250,7 @@ while True:
         if event.type==pg.KEYDOWN:
             # rint(event.key)
             pass
-        if game_state=="playing" and not counting_down:
+        if game_state=="playing local" and not counting_down:
             if event.type==pg.MOUSEBUTTONDOWN:
                 mpos=V(event.pos)
                 if event.button==1:
@@ -325,7 +333,7 @@ while True:
                 if event.button==1:
                     if next_turn_button.collidepoint(mpos):
                         next_turn_button.pressed=False
-                        game_state="playing"
+                        game_state="playing local"
                 screen_dragging=False
             pass
         elif game_state=="title":
@@ -391,9 +399,9 @@ while True:
         for i in player_name_buttons:
             i.blit(screen)
         quabble_text.blit(screen)
-    if game_state in ("playing","next turn"):
+    if game_state in ("playing local","next turn"):
         if going_home:
-            nshift=window_size/2-B.center*zoom
+            nshift=window_size/2-B.center*zoom-(0,70)
             if (nshift-shift).lenSquared()<4:
                 shift=nshift
                 going_home=False
@@ -417,7 +425,7 @@ while True:
         tile_list=[i for row in B for i in row if i]
         for i in tile_list:
             i.show_on_board(screen,zoom,shift)
-    if game_state == "playing":
+    if game_state == "playing local":
         if counting_down:
             countdown_timer -= 1
             if countdown_timer == 0:
@@ -447,7 +455,10 @@ while True:
         next_turn_button.changeText("Pass to {}".format(player1.name),show_player_buttons[turn].color)
         # next_turn_button.changeTe
         next_turn_button.blit(screen)
-
+    # for i,color in enumerate(tile_colors):
+    #     for j,shape in enumerate(tile_shapes):
+    #         screen.blit(pg.transform.scale(images[color][shape],(100,100)),(i*100,j*100))
+    # pickle.dump(B,open("current_board.dat","wb"))
     pg.display.update()
 
     clock.tick(60)

@@ -5,7 +5,8 @@ from math import cos,sin,pi
 def tile_transform(point,zoom,shift):
     return V(point)*zoom+shift
 
-window_size=V((1000,600))
+window_size=V((1100,600))
+load_images=True
 pg.init()
 tile_color=(30,30,30)
 shadow_color=(60,60,60)
@@ -21,10 +22,27 @@ colors["yellow"]=(240,228,0)
 colors["orange"]=(255,119,28)
 colors["teal"]=(0,180,150)
 ts=V((1000,1000))
+images={}
+# if load_images:
+#     for color in ["red","orange","yellow","green","blue","purple","teal"]:
+#         for shape in ["square","diamond","ninja","star","circle","clover","triangle"]:
+#             images[color][shape]=pg.image.load("Tiles/{}_{}.png".format(color, shape)).convert_alpha()
+# shadow = pg.Surface(ts, pg.SRCALPHA, 32)
+# pg.draw.rect(shadow, shadow_color, pg.Rect((0, 0), (ts)), border_radius=100)
 
 
 class Tile():
-    def __init__(self,shape,color,lazy=True):
+    def create_images(self):
+        global images,shadow
+        for color in ["red", "orange", "yellow", "green", "blue", "purple", "teal"]:
+            images[color]={}
+            for shape in ["square", "diamond", "ninja", "star", "circle", "clover", "triangle"]:
+                images[color][shape] = pg.image.load("Tiles/{}_{}.png".format(color, shape)).convert_alpha()
+        shadow = pg.Surface(ts, pg.SRCALPHA, 32)
+        pg.draw.rect(shadow, shadow_color, pg.Rect((0, 0), (ts)), border_radius=100)
+    def __init__(self,shape,color,lazy=load_images):
+        if not images and load_images:
+            self.create_images()
         self.shape=shape
         self.color=color
         self.grid_pos=V((0,0))
@@ -35,7 +53,8 @@ class Tile():
         self.selected=False
         self.waiting=False
         if lazy:
-            self.surf=pg.image.load("Tiles/{}_{}.png".format(color,shape)).convert_alpha()
+            pass
+            # self.surf=pg.image.load("Tiles/{}_{}.png".format(color,shape)).convert_alpha()
         else:
             self.surf=pg.Surface(ts,pg.SRCALPHA,32)
             pg.draw.rect(self.surf,tile_color,pg.Rect((0,0),(ts)),border_radius=100)
@@ -55,37 +74,41 @@ class Tile():
                 self.draw_triangle(colors[color])
             pg.image.save(self.surf, "Tiles/{}_{}.png".format(color, shape))
             self.surf=self.surf.convert_alpha()
-        self.shadow = pg.Surface(ts, pg.SRCALPHA, 32)
-        pg.draw.rect(self.shadow, shadow_color, pg.Rect((0, 0), (ts)), border_radius=100)
-        self.hand_surf= pg.transform.scale(self.surf, V((110, 110)))
-        self.hand_shadow=pg.transform.scale(self.shadow,V((110,110)))
-        self.selected_surf=pg.transform.scale(self.surf, V((120,120)))
-        self.selected_shadow=pg.transform.scale(self.shadow,V((120,120)))
+            self.shadow=shadow
+        # self.shadow = pg.Surface(ts, pg.SRCALPHA, 32)
+        # pg.draw.rect(self.shadow, shadow_color, pg.Rect((0, 0), (ts)), border_radius=100)
+        # self.hand_surf= pg.transform.scale(self.surf, V((110, 110)))
+        # self.hand_shadow=pg.transform.scale(self.shadow,V((110,110)))
+        # self.selected_surf=pg.transform.scale(self.surf, V((120,120)))
+        # self.selected_shadow=pg.transform.scale(self.shadow,V((120,120)))
+    def surf(self):
+        # return self.surf()
+        return images[self.color][self.shape]
     def show_on_board(self,screen,zoom,shift):
-        surf=pg.transform.scale(self.surf,V((zoom,zoom))*tile_fill)
+        surf=pg.transform.scale(self.surf(),V((zoom,zoom))*tile_fill)
         actpos=tile_transform(self.grid_pos+V((1,1))*(1-tile_fill)/2-(.01,.03),zoom,shift)
         apos = tile_transform(self.grid_pos + V((1, 1)) * (1 - tile_fill) / 2+(.01,.03), zoom, shift)
-        screen.blit(pg.transform.scale(self.shadow,V((zoom,zoom))*tile_fill),apos)
+        screen.blit(pg.transform.scale(shadow,V((zoom,zoom))*tile_fill),apos)
         screen.blit(surf,actpos)
-    def show_in_hand(self,screen,index):
-        if self.selected:
-            pos = hand_pos(index)-(5,5)
-            apos = hand_pos(index)-(3,-1)
-            surf=self.selected_surf
-            shadow=self.selected_shadow
-        else:
-            pos = hand_pos(index)
-            apos = hand_pos(index)+(2,6)
-            surf=self.hand_surf
-            shadow=self.hand_shadow
-        screen.blit(shadow,apos)
-        screen.blit(surf,pos)
+    # def show_in_hand(self,screen,index):
+    #     if self.selected:
+    #         pos = hand_pos(index)-(5,5)
+    #         apos = hand_pos(index)-(3,-1)
+    #         surf=self.selected_surf
+    #         shadow=self.selected_shadow
+    #     else:
+    #         pos = hand_pos(index)
+    #         apos = hand_pos(index)+(2,6)
+    #         surf=self.hand_surf
+    #         shadow=self.hand_shadow
+    #     screen.blit(shadow,apos)
+    #     screen.blit(surf,pos)
     def show_moving(self,screen):
         self.float_size+=(self.target_size-self.float_size)/7
         self.float_pos += (self.target_pos - self.float_pos)/7
-        image=pg.transform.scale(self.surf,self.float_size)
-        shadow=pg.transform.scale(self.shadow,self.float_size)
-        screen.blit(shadow,self.float_pos+V((.02,.06)).pmul(self.float_size))
+        image=pg.transform.scale(self.surf(),self.float_size)
+        shdw=pg.transform.scale(shadow,self.float_size)
+        screen.blit(shdw,self.float_pos+V((.02,.06)).pmul(self.float_size))
         screen.blit(image,self.float_pos)
     def dragging(self,index,zoom):
         mpos=pg.mouse.get_pos()

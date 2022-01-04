@@ -22,7 +22,6 @@ class Player():
         for i in range(len(self.hand)):
             self.draw(i,bag)
     def draw(self,i,bag=["apple"]):
-        print(len(bag))
         if bag:
             tile_index=choice(range(len(bag)))
             self.hand[i]=bag[tile_index]
