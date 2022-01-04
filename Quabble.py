@@ -295,9 +295,6 @@ while True:
                     going_home=True
                     for i,tile in actual_hand:
                         tile.send_to_hand(i)
-                    # for tile in player1.hand:
-                    #     if tile.waiting:
-                    #         print(waiting)
                     update_legality()
                 elif event.key==pg.K_q:
                     for tile in B.all_tiles():
