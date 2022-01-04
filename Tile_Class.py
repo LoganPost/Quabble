@@ -90,7 +90,7 @@ class Tile():
     def dragging(self,index,zoom):
         mpos=pg.mouse.get_pos()
         self.target_pos=mpos-self.float_size/2
-        self.target_size=V((zoom,zoom))*waiting_fill
+        self.target_size=V((zoom,zoom))*1.08
         rect=pg.Rect(hand_pos(index),(110,110))
         if rect.collidepoint(mpos):
             self.target_pos=hand_pos(index)

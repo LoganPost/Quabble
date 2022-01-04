@@ -69,6 +69,7 @@ def start_game():
     for i in players: i.score=0
     current_score_box.changeText("Move score")
     player1=players[0]
+    global actual_hand; actual_hand=enumerate(player1.hand)
     turn=0
     cols=[3 * (c * 2 - background_color) / 4 for c in player_button_colors]
     lst=[(i,b) for i,b in enumerate(player_name_buttons) if b.player_name]
@@ -279,6 +280,7 @@ while True:
                                 player1.hand[tile_selected].send_to_hand(tile_selected)
                             else:
                                 player1.hand[tile_selected].target_pos=transform(unclicked_spot)-V((.02,.06))*zoom
+                                player1.hand[tile_selected].target_size=V((zoom, zoom)) * waiting_fill
                                 player1.hand[tile_selected].waiting=True
                         else:
                             player1.hand[tile_selected].waiting=False
