@@ -8,6 +8,7 @@ from random import random as rand
 from Board_Class import Board,make_board,get_bonus
 from Button_Class import Button,TextBox,Bonus
 import pickle
+from Network_Class import Network
 
 quirkle_length=6
 # pickle.dump(["" for i in range(4)],open("player_names.dat",'wb'))
@@ -29,8 +30,8 @@ def get_bag():
     for i, color in enumerate(tile_colors[:quirkle_length]):
         for j, shape in enumerate(tile_shapes[:quirkle_length]):
             bag.append(Tile(shape, color))
-            bag.append(Tile(shape, color))
-            bag.append(Tile(shape, color))
+            # bag.append(Tile(shape, color))
+            # bag.append(Tile(shape, color))
     return bag
 def draw_grid():
     min_dx, min_dy = (inverse_transform(origin) - (1, 1)).intify()
@@ -134,6 +135,18 @@ def game_over():
                 pg.quit()
                 exit()
         clock.tick(60)
+def back_to_title():
+    global B,game_state
+    for tile in B.all_tiles():
+        bag.append(tile)
+    for player in players:
+        for tile in player.hand:
+            if tile:
+                bag.append(tile)
+    B = Board([[None]])
+    B.offset = V((0, 0))
+    B.center = V((.5, .5))
+    game_state = "title"
 
 if False:
     my_list=Board([[None for i in range(3)] for j in range(4)])
@@ -191,6 +204,10 @@ next_turn_button=Button((300,90),(30,30,30),"Pass to: ",(200,200,200),font=helv)
 next_turn_button.center((window_size[0]/2,window_size[1]-100))
 play_button=Button((220,70),(200,200,200),"Play Game",(0,0,0),helv)
 play_button.center(window_size/2+(0,250))
+play_online_button=Button((220,70),(200,100,100),"Play Online",(0,0,0),helv)
+play_online_button.center(window_size/2+(300,250))
+online_back_button=Button((220,70),(200,100,100),"Back",(0,0,0),helv)
+online_back_button.center((200,100))
 
 number_of_players=4
 player_name_selected=-1
@@ -231,6 +248,7 @@ tile_click=False
 countdown_length=50
 counting_down=False
 game_state="title"
+online_player_list=[Player("John"),Player("Smith"),Player("Logan")]
 
 current_score_box=TextBox("Move score: ",(0,0,0))
 current_score_box.center((window_size[0]/2,20))
@@ -298,7 +316,6 @@ while True:
                         place_button.pressed=False
                         if place_button.collidepoint(mpos):
                             try_to_place()
-
             elif event.type==pg.KEYDOWN:
                 if event.key==pg.K_SPACE:
                     space_pressed=True
@@ -307,16 +324,7 @@ while True:
                         tile.send_to_hand(i)
                     update_legality()
                 elif event.key==pg.K_q:
-                    for tile in B.all_tiles():
-                        bag.append(tile)
-                    for player in players:
-                        for tile in player.hand:
-                            if tile:
-                                bag.append(tile)
-                    B=Board([[None]])
-                    B.offset=V((0,0))
-                    B.center=V((.5,.5))
-                    game_state="title"
+                    back_to_title()
         elif game_state=="next turn":
             if event.type==pg.MOUSEBUTTONDOWN:
                 mpos=pg.mouse.get_pos()
@@ -335,26 +343,42 @@ while True:
                         next_turn_button.pressed=False
                         game_state="playing local"
                 screen_dragging=False
-            pass
+            elif event.type==pg.KEYDOWN:
+                if event.key==pg.K_SPACE:
+                    going_home=True
+                elif event.key==pg.K_q:
+                    back_to_title()
         elif game_state=="title":
             if event.type==pg.MOUSEBUTTONDOWN:
                 mpos=event.pos
                 if event.button==1:
                     if play_button.collidepoint(mpos):
                         play_button.pressed=True
+                    elif play_online_button.collidepoint(mpos):
+                        play_online_button.pressed=True
                     for butt in player_name_buttons:
                         if butt.collidepoint(mpos):
                             butt.pressed=True
             elif event.type==pg.MOUSEBUTTONUP:
                 mpos=event.pos
                 if event.button==1:
-                    play_button.pressed = False
-                    if play_button.collidepoint(mpos):
+                    if play_button.collidepoint(mpos) and play_button.pressed:
                         if start_game(): game_state="next turn"
+                    elif play_online_button.collidepoint(mpos) and play_online_button.pressed:
+                        name=player_name_buttons[0].player_name
+                        if name:
+                            Player1 = Player(name)
+                            n=Network()
+                            print("We have a network!")
+                            n.send(("new player",Player1))
+                            print("The player works!")
+                            game_state="title online"
                     for i,butt in enumerate(player_name_buttons):
                         if butt.pressed and butt.collidepoint(mpos):
                             click_player_button(i)
                         butt.pressed=False
+                    play_button.pressed = False
+                    play_online_button.pressed=False
             elif event.type==pg.KEYDOWN:
                 key = event.key
                 if key==9 or key==1073741905:
@@ -391,14 +415,38 @@ while True:
                     pickle.dump([i.player_name for i in player_name_buttons],open("player_names.dat","wb"))
                     butt.changeText("Player {}: {}|".format(player_name_selected+1,butt.player_name))
                     butt.size_to_fit()
+        elif game_state=="title online":
+            if event.type==pg.MOUSEBUTTONDOWN:
+                mpos=pg.mouse.get_pos()
+                if event.button==1:
+                    if online_back_button.collidepoint(mpos):
+                        online_back_button.pressed=True
+            elif event.type==pg.MOUSEBUTTONUP:
+                mpos=pg.mouse.get_pos()
+                if event.button==1:
+                    if online_back_button.collidepoint(mpos):
+                        game_state="title"
+                        print("saying Goodbye")
+                        print(Player1)
+                        n.send(("goodbye",Player1))
+                    online_back_button.pressed=False
+
     ########################################################################################
 
     if game_state == "title":
         screen.blit(background, origin)
         play_button.blit(screen)
+        play_online_button.blit(screen)
         for i in player_name_buttons:
             i.blit(screen)
         quabble_text.blit(screen)
+    elif game_state=="title online":
+        screen.blit(background,origin)
+        online_back_button.blit(screen)
+        online_player_list =n.send(("get players",0))
+        # print(onlin_player_list)
+        for i,player in enumerate(online_player_list):
+            screen.blit(helv.render(player.name,True,(0,0,0)),(400,i*70))
     if game_state in ("playing local","next turn"):
         if going_home:
             nshift=window_size/2-B.center*zoom-(0,70)
@@ -425,7 +473,7 @@ while True:
         tile_list=[i for row in B for i in row if i]
         for i in tile_list:
             i.show_on_board(screen,zoom,shift)
-    if game_state == "playing local":
+    if game_state in ("playing local", "playing online"):
         if counting_down:
             countdown_timer -= 1
             if countdown_timer == 0:
@@ -455,6 +503,12 @@ while True:
         next_turn_button.changeText("Pass to {}".format(player1.name),show_player_buttons[turn].color)
         # next_turn_button.changeTe
         next_turn_button.blit(screen)
+    if game_state == "playing online":
+        newB=n.send(pickle.dumps(B))
+        if B!=newB:
+            B=newB
+            turn+=1
+
     # for i,color in enumerate(tile_colors):
     #     for j,shape in enumerate(tile_shapes):
     #         screen.blit(pg.transform.scale(images[color][shape],(100,100)),(i*100,j*100))

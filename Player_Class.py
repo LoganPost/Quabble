@@ -29,3 +29,5 @@ class Player():
             self.hand[i]
             del bag[tile_index]
             return self.hand[i]
+    def __str__(self):
+        return "Player named {}".format(self.name)
