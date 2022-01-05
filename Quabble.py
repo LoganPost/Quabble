@@ -9,7 +9,7 @@ from Board_Class import Board,make_board,get_bonus
 from Button_Class import Button,TextBox,Bonus
 import pickle
 from Network_Class import Network
-
+from Tile_Class import tile_hand_size
 quirkle_length=6
 # pickle.dump(["" for i in range(4)],open("player_names.dat",'wb'))
 pg.init()
@@ -27,8 +27,8 @@ def inverse_transform(point):
 
 def get_bag():
     bag = []
-    for i, color in enumerate(tile_colors[:quirkle_length]):
-        for j, shape in enumerate(tile_shapes[:quirkle_length]):
+    for i, color in enumerate(tile_colors[:3]):# [:quirkle_length]):
+        for j, shape in enumerate(tile_shapes[:3]):#[:quirkle_length]):
             bag.append(Tile(shape, color))
             # bag.append(Tile(shape, color))
             # bag.append(Tile(shape, color))
@@ -95,14 +95,17 @@ def try_to_place():
                 player1.hand[i]=None
                 player1.draw(i, bag)
         actual_hand=[(i,t) for i,t in enumerate(player1.hand) if t]
-        countdown_timer = countdown_length
-        counting_down = True
+        if len(players)>1:
+            countdown_timer = countdown_length
+            counting_down = True
         player1.score+=score
         show_player_buttons[turn].changeText("{}: {}".format(player1.name,player1.score))
         # print("Score is: {}".format(B.score(spots)))
     if not actual_hand:
         player1.score+=6 #Bonus for finishing the game first
-        game_over()
+        global game_state
+        print("game over")
+        game_state="game over"
     pass
 def click_player_button(i):
     global player_name_selected
@@ -127,14 +130,16 @@ def update_legality():
         current_score_box.changeText("Move score: ")
 
 def game_over():
-    screen.blit(helv.render("Game Over",True,(0,0,0)),window_size/2)
-    pg.display.update()
-    while True:
-        for event in pg.event.get():
-            if event.type==pg.QUIT:
-                pg.quit()
-                exit()
-        clock.tick(60)
+    global gameover
+    gameover=True
+    # screen.blit(helv.render("Game Over",True,(0,0,0)),window_size/2)
+    # pg.display.update()
+    # while False:
+    #     for event in pg.event.get():
+    #         if event.type==pg.QUIT:
+    #             pg.quit()
+    #             exit()
+    #     clock.tick(60)
 def back_to_title():
     global B,game_state
     for tile in B.all_tiles():
@@ -195,7 +200,7 @@ capitalize_dict={"q":"Q","w":"W","e":"E","r":"R","t":"T","y":"Y","u":"U","i":"I"
     "p":"P","a":"A","s":"S","d":"D","f":"F","g":"G","h":"H","j":"J","k":"K","l":"L","z":"Z",
     "x":"X","c":"C","v":"V","b":"B","n":"N","m":"M"," ":" "}
 
-hand_rects=[pg.Rect((window_size[0]/2+130*(index-3)+10,window_size[1]-130),(110,110)) for index in range(6)]
+hand_rects=[pg.Rect((window_size[0]/2+(tile_hand_size[0]+20)*(index-3)+10,window_size[1]-(tile_hand_size[0]+20)),tile_hand_size) for index in range(6)]
 
 helv=pg.font.SysFont("helvetica",50)
 place_button=Button((150,40),(40,140,40),"Place Tiles",(0,0,0),thickness=1)
@@ -208,6 +213,9 @@ play_online_button=Button((220,70),(200,100,100),"Play Online",(0,0,0),helv)
 play_online_button.center(window_size/2+(300,250))
 online_back_button=Button((220,70),(200,100,100),"Back",(0,0,0),helv)
 online_back_button.center((200,100))
+
+game_over_button=Button((250,80),(50,50,50),"Game Over",(150,50,50),helv)
+game_over_button.center((window_size[0]/2,60))
 
 number_of_players=4
 player_name_selected=-1
@@ -287,11 +295,6 @@ while True:
                 elif event.button==3:
                     clicked_spot=inverse_transform(mpos).rdown()
                     B=B.place_click(tiles.pop(),clicked_spot)
-
-                if event.button==4:
-                    change_zoom(zoom_slide_rate)
-                if event.button==5:
-                    change_zoom(1/zoom_slide_rate)
             elif event.type==pg.MOUSEBUTTONUP:
                 mpos=pg.mouse.get_pos()
                 if event.button==1:
@@ -318,13 +321,8 @@ while True:
                             try_to_place()
             elif event.type==pg.KEYDOWN:
                 if event.key==pg.K_SPACE:
-                    space_pressed=True
-                    going_home=True
-                    for i,tile in actual_hand:
-                        tile.send_to_hand(i)
-                    update_legality()
-                elif event.key==pg.K_q:
-                    back_to_title()
+                    for i,t in actual_hand:
+                        t.send_to_hand(i)
         elif game_state=="next turn":
             if event.type==pg.MOUSEBUTTONDOWN:
                 mpos=pg.mouse.get_pos()
@@ -333,21 +331,23 @@ while True:
                         next_turn_button.pressed=True
                     else:
                         screen_dragging=True
-                if event.button==4:
-                    change_zoom(zoom_slide_rate)
-                if event.button==5:
-                    change_zoom(1/zoom_slide_rate)
             elif event.type==pg.MOUSEBUTTONUP:
                 if event.button==1:
                     if next_turn_button.collidepoint(mpos):
                         next_turn_button.pressed=False
                         game_state="playing local"
                 screen_dragging=False
-            elif event.type==pg.KEYDOWN:
-                if event.key==pg.K_SPACE:
-                    going_home=True
-                elif event.key==pg.K_q:
+        if game_state in ("playing local","next turn","game over"):
+            if event.type == pg.KEYDOWN:
+                if event.key == pg.K_SPACE:
+                    going_home = True
+                elif event.key == pg.K_q:
                     back_to_title()
+            elif event.type==pg.MOUSEBUTTONDOWN:
+                if event.button==4:
+                    change_zoom(zoom_slide_rate)
+                if event.button==5:
+                    change_zoom(1/zoom_slide_rate)
         elif game_state=="title":
             if event.type==pg.MOUSEBUTTONDOWN:
                 mpos=event.pos
@@ -364,7 +364,7 @@ while True:
                 if event.button==1:
                     if play_button.collidepoint(mpos) and play_button.pressed:
                         if start_game(): game_state="next turn"
-                    elif play_online_button.collidepoint(mpos) and play_online_button.pressed:
+                    elif play_online_button.collidepoint(mpos) and play_online_button.pressed and False:
                         name=player_name_buttons[0].player_name
                         if name:
                             Player1 = Player(name)
@@ -430,6 +430,22 @@ while True:
                         print(Player1)
                         n.send(("goodbye",Player1))
                     online_back_button.pressed=False
+        if game_state=="game over":
+            if event.type==pg.MOUSEBUTTONDOWN:
+                mpos=pg.mouse.get_pos()
+                if event.button==1:
+                    if game_over_button.collidepoint(mpos):
+                        game_over_button.pressed=True
+                    else:
+                        screen_dragging=True
+            elif event.type==pg.MOUSEBUTTONUP:
+                mpos=pg.mouse.get_pos()
+                if event.button==1:
+                    if game_over_button.collidepoint(mpos) and game_over_button.pressed:
+                        back_to_title()
+                    game_over_button.pressed=False
+                    screen_dragging=False
+
 
     ########################################################################################
 
@@ -447,7 +463,7 @@ while True:
         # print(onlin_player_list)
         for i,player in enumerate(online_player_list):
             screen.blit(helv.render(player.name,True,(0,0,0)),(400,i*70))
-    if game_state in ("playing local","next turn"):
+    if game_state in ("playing local","next turn","game over"):
         if going_home:
             nshift=window_size/2-B.center*zoom-(0,70)
             if (nshift-shift).lenSquared()<4:
@@ -508,6 +524,8 @@ while True:
         if B!=newB:
             B=newB
             turn+=1
+    if game_state == "game over":
+        game_over_button.blit(screen)
 
     # for i,color in enumerate(tile_colors):
     #     for j,shape in enumerate(tile_shapes):

@@ -12,6 +12,7 @@ tile_color=(30,30,30)
 shadow_color=(60,60,60)
 image_fill=.6
 tile_fill=0.9
+tile_hand_size=V((80,80))
 waiting_fill=1.02
 colors={}
 colors["red"]=(150,30,30)
@@ -47,9 +48,9 @@ class Tile():
         self.color=color
         self.grid_pos=V((0,0))
         self.float_pos=V((0,0))
-        self.float_size=V((110,110))
+        self.float_size=tile_hand_size
         self.target_pos=V((0,0))
-        self.target_size=V((110,110))
+        self.target_size=tile_hand_size
         self.selected=False
         self.waiting=False
         if lazy:
@@ -114,10 +115,10 @@ class Tile():
         mpos=pg.mouse.get_pos()
         self.target_pos=mpos-self.float_size/2
         self.target_size=V((zoom,zoom))*1.08
-        rect=pg.Rect(hand_pos(index),(110,110))
+        rect=pg.Rect(hand_pos(index),tile_hand_size)
         if rect.collidepoint(mpos):
             self.target_pos=hand_pos(index)
-            self.target_size=(110,110)
+            self.target_size=tile_hand_size
     def __eq__(self,other):
         return isinstance(other,Tile) and self.color==other.color and self.shape==other.shape
     def same_shape(self,other):
@@ -129,7 +130,7 @@ class Tile():
     def set_hand_pos(self,i):
         self.float_pos=hand_pos(i)+(0,150)
         self.target_pos=hand_pos(i)
-        self.target_size=V((110, 110))
+        self.target_size=tile_hand_size
         self.waiting=False
     def to_target(self):
         self.float_size=self.target_size
@@ -137,7 +138,7 @@ class Tile():
     def send_to_hand(self,i):
         self.target_pos = hand_pos(i)
         self.waiting = False
-        self.target_size = V((110, 110))
+        self.target_size = tile_hand_size
 
 
 
@@ -225,4 +226,4 @@ class Tile():
         pg.draw.polygon(self.surf,color,points)
 
 def hand_pos(index):
-    return V((window_size[0] / 2 + 130 * (index - 3) + 10, window_size[1] - 130))
+    return V((window_size[0] / 2 + (tile_hand_size[0]+20) * (index - 3) + 10, window_size[1] - (tile_hand_size[0]+20)))
