@@ -27,11 +27,11 @@ def inverse_transform(point):
 
 def get_bag():
     bag = []
-    for i, color in enumerate(tile_colors[:3]):# [:quirkle_length]):
-        for j, shape in enumerate(tile_shapes[:3]):#[:quirkle_length]):
+    for i, color in enumerate(tile_colors[:quirkle_length]):
+        for j, shape in enumerate(tile_shapes[:quirkle_length]):
             bag.append(Tile(shape, color))
-            # bag.append(Tile(shape, color))
-            # bag.append(Tile(shape, color))
+            bag.append(Tile(shape, color))
+            bag.append(Tile(shape, color))
     return bag
 def draw_grid():
     min_dx, min_dy = (inverse_transform(origin) - (1, 1)).intify()
