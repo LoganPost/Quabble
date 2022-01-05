@@ -9,7 +9,11 @@ Bugs:
 
 """
 def get_bonus(spot):
-    #return 1
+    # if spot[0]%4==0 and spot[1]%5==0 and sum(spot)%3==0:
+    #     return 3
+    # elif spot[0]%3==0 and spot[1]%4==0:# and sum(spot)%2==0:
+    #     return 2
+    # return 1
     if spot[0]%8==0 and spot[1]%7==0:
         return 3
     elif spot[0]%5==0 and spot[1]%5==0:

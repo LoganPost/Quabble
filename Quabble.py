@@ -51,8 +51,8 @@ def draw_grid():
                 elif bon==3:
                     three.stamp(screen,transform(spt),(zoom,zoom))
 
-two=Bonus("2x",(0,0,100))
-three=Bonus("3x",(100,30,30))
+two=Bonus("2x",(40,40,100))
+three=Bonus("3x",(100,40,40))
 def change_zoom(zoom_slide_rate):
     global zoom,shift
     for i, tile in actual_hand:
