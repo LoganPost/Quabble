@@ -45,10 +45,14 @@ def draw_grid():
         for y in range(min_dy,max_dy):
             spt=(x,y)
             if not B.get(spt-B.offset):
-                if get_bonus(spt)==2:
+                bon=get_bonus(spt)
+                if bon==2:
                     two.stamp(screen,transform(spt),(zoom,zoom))
+                elif bon==3:
+                    three.stamp(screen,transform(spt),(zoom,zoom))
 
 two=Bonus("2x",(0,0,100))
+three=Bonus("3x",(100,30,30))
 def change_zoom(zoom_slide_rate):
     global zoom,shift
     for i, tile in actual_hand:

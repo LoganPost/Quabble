@@ -9,8 +9,10 @@ Bugs:
 
 """
 def get_bonus(spot):
-    return 1
-    if spot[0]%4==2 and spot[1]%4==2:
+    #return 1
+    if spot[0]%8==0 and spot[1]%7==0:
+        return 3
+    elif spot[0]%5==0 and spot[1]%5==0:
         return 2
     return 1
 
@@ -186,7 +188,9 @@ class Board(Matrix):
             pass
         else:
             score+=lnt
-        if 2 in [get_bonus(i) for i in spots]:
+        if 3 in [get_bonus(i) for i in spots]:
+            score*=3
+        elif 2 in [get_bonus(i) for i in spots]:
             score*=2
             print("bonus")
         pscore=score
@@ -219,9 +223,7 @@ class Board(Matrix):
             if lnt==1:
                 pass
             else:
-                if get_bonus(spot+board.offset)==2:
-                    lnt*=2
-                    print("another bonus")
+                lnt*=get_bonus(spot+board.offset)
                 score += lnt
         return score
     def score(self,spots):
