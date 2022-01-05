@@ -15,9 +15,9 @@ This move, the green circle, is 12+3=15 points. By completing the line of 6 circ
 
 ## Things to do
 
-### Do not try to play online
-This does not work at all
+### Online Play
+This is deactivated because it doesn't work yet.
 ### Bonuses
 Like in scrabble, I want to add bonuses to certain moves. The logic for this is pretty much done, but I'm undecided on their placement and they look ugly at the moment
-### End game
-At the end of the game, it just says game over and does nothing until you quit the program. This must be improved
+### Graphics
+The color pallate and styling is generally distasteful.
