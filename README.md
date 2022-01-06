@@ -1,5 +1,5 @@
 # Quabble
-Quirkle board game with scrabble bonuses
+Quirkle board game with a twist! Scrabble-like bonuses are littered across the board.
 
 ## To Play
 Run `quabble` to play
