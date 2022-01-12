@@ -2,17 +2,20 @@ import pygame as pg
 from Matrix_Class import V
 from pygame import gfxdraw
 from math import cos,sin,pi
+from Button_Class import evscl
+
+
 def tile_transform(point,zoom,shift):
     return V(point)*zoom+shift
 
-window_size=V((1100,600))
+window_size=V((1100,600))*evscl
 load_images=True
 pg.init()
 tile_color=(30,30,30)
 shadow_color=(60,60,60)
 image_fill=.6
 tile_fill=0.9
-tile_hand_size=V((100,100))
+tile_hand_size=V((100,100))*evscl
 waiting_fill=1.02
 colors={}
 colors["red"]=(150,30,30)
@@ -128,7 +131,7 @@ class Tile():
     def __str__(self):
         return "{} {}".format(self.color,self.shape)
     def set_hand_pos(self,i):
-        self.float_pos=hand_pos(i)+(0,150)
+        self.float_pos=hand_pos(i)+V((0,150))*evscl
         self.target_pos=hand_pos(i)
         self.target_size=tile_hand_size
         self.waiting=False
@@ -226,4 +229,4 @@ class Tile():
         pg.draw.polygon(self.surf,color,points)
 
 def hand_pos(index):
-    return V((window_size[0] / 2 + (tile_hand_size[0]+20) * (index - 3) + 10, window_size[1] - (tile_hand_size[0]+20)))
+    return V((window_size[0] / 2 + (tile_hand_size[0]+20*evscl) * (index - 3) + 10*evscl, window_size[1] - (tile_hand_size[0]+20*evscl)))

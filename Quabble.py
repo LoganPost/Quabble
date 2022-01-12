@@ -6,14 +6,14 @@ from math import sin, cos
 from Player_Class import Player
 from random import random as rand
 from Board_Class import Board,make_board,get_bonus
-from Button_Class import Button,TextBox,Bonus
+from Button_Class import Button,TextBox,Bonus,evscl
 import pickle
 from Network_Class import Network
 from Tile_Class import tile_hand_size
 quirkle_length=6
 # pickle.dump(["" for i in range(4)],open("player_names.dat",'wb'))
 pg.init()
-window_size=V((1100,600))
+window_size=V((1100,600))*evscl
 screen=pg.display.set_mode(window_size)
 
 from Tile_Class import Tile,waiting_fill
@@ -38,9 +38,9 @@ def draw_grid():
     max_dx, max_dy = (inverse_transform(window_size) + (1, 1)).intify()
     screen.blit(background, origin)
     for line_x in range(min_dx, max_dx):
-        pg.draw.line(screen, line_color, transform((line_x, min_dy)), transform((line_x, max_dy)), 2)
+        pg.draw.line(screen, line_color, transform((line_x, min_dy)), transform((line_x, max_dy)), 2*evscl)
     for line_y in range(min_dy, max_dy):
-        pg.draw.line(screen, line_color, transform((min_dx, line_y)), transform((max_dx, line_y)), 2)
+        pg.draw.line(screen, line_color, transform((min_dx, line_y)), transform((max_dx, line_y)), 2*evscl)
     for x in range(min_dx,max_dx):
         for y in range(min_dy,max_dy):
             spt=(x,y)
@@ -55,16 +55,17 @@ two=Bonus("2x",(40,40,100))
 three=Bonus("3x",(100,40,40))
 def change_zoom(zoom_slide_rate):
     global zoom,shift
-    for i, tile in actual_hand:
-        if tile.waiting:
-            tile.target_pos = inverse_transform(tile.target_pos)
-    shift = shift + (1 - zoom_slide_rate) * inverse_transform(mpos) * zoom
-    zoom *= zoom_slide_rate
-    for i, tile in actual_hand:
-        if tile.waiting:
-            tile.target_pos = transform(tile.target_pos)
-            tile.target_size = V((zoom, zoom)) * waiting_fill
-            tile.to_target()
+    if (zoom_slide_rate>1 and zoom<750*evscl) or (zoom_slide_rate<1 and zoom>11*evscl):
+        for i, tile in actual_hand:
+            if tile.waiting:
+                tile.target_pos = inverse_transform(tile.target_pos)
+        shift = shift + (1 - zoom_slide_rate) * inverse_transform(mpos) * zoom
+        zoom *= zoom_slide_rate
+        for i, tile in actual_hand:
+            if tile.waiting:
+                tile.target_pos = transform(tile.target_pos)
+                tile.target_size = V((zoom, zoom)) * waiting_fill
+                tile.to_target()
 def start_game():
     global players,player1,turn,show_player_buttons
     players=[]
@@ -81,10 +82,10 @@ def start_game():
     turn=0
     cols=[3 * (c * 2 - background_color) / 4 for c in player_button_colors]
     lst=[(i,b) for i,b in enumerate(player_name_buttons) if b.player_name]
-    show_player_buttons=[Button((120,50),player_button_colors[i],"",(0,0,0),player_name_font) for i,b in lst]
+    show_player_buttons=[Button(V((120,50))*evscl,player_button_colors[i],"",(0,0,0),player_name_font) for i,b in lst]
     for i,b in enumerate(show_player_buttons):
         b.changeText(players[i].name)
-        b.center((70,i*60+30))
+        b.center(V((70,i*60+30))*evscl)
         b.size_to_fit()
     return True
 def try_to_place():
@@ -136,14 +137,7 @@ def update_legality():
 def game_over():
     global gameover
     gameover=True
-    # screen.blit(helv.render("Game Over",True,(0,0,0)),window_size/2)
-    # pg.display.update()
-    # while False:
-    #     for event in pg.event.get():
-    #         if event.type==pg.QUIT:
-    #             pg.quit()
-    #             exit()
-    #     clock.tick(60)
+
 def back_to_title():
     global B,game_state
     for tile in B.all_tiles():
@@ -167,7 +161,7 @@ B.offset=V((0,0))
 B.center=V((.5,.5))
 
 
-zoom=100
+zoom=100*evscl
 zoom_slide_rate=1.1
 clock=pg.time.Clock()
 shift=window_size/2
@@ -175,7 +169,7 @@ origin=V((0,0))
 board_center=V((0.5,0.5))
 leftClicking=pg.mouse.get_pressed()[0]
 
-myFont=pg.font.SysFont("timesnewroman",50)
+myFont=pg.font.SysFont("timesnewroman",50*evscl)
 
 background=pg.Surface(window_size)
 background_color=V((118,81,63))# V((139,85,0))
@@ -204,22 +198,22 @@ capitalize_dict={"q":"Q","w":"W","e":"E","r":"R","t":"T","y":"Y","u":"U","i":"I"
     "p":"P","a":"A","s":"S","d":"D","f":"F","g":"G","h":"H","j":"J","k":"K","l":"L","z":"Z",
     "x":"X","c":"C","v":"V","b":"B","n":"N","m":"M"," ":" "}
 
-hand_rects=[pg.Rect((window_size[0]/2+(tile_hand_size[0]+20)*(index-3)+10,window_size[1]-(tile_hand_size[0]+20)),tile_hand_size) for index in range(6)]
+hand_rects=[pg.Rect((window_size[0]/2+(tile_hand_size[0]+20*evscl)*(index-3)+10*evscl,window_size[1]-(tile_hand_size[0]+20*evscl)),tile_hand_size) for index in range(6)]
 
-helv=pg.font.SysFont("helvetica",50)
-place_button=Button((150,40),(40,140,40),"Place Tiles",(0,0,0),thickness=1)
-place_button.center((900,50))
-next_turn_button=Button((300,90),(30,30,30),"Pass to: ",(200,200,200),font=helv)
-next_turn_button.center((window_size[0]/2,window_size[1]-100))
-play_button=Button((220,70),(200,200,200),"Play Game",(0,0,0),helv)
-play_button.center(window_size/2+(0,250))
-play_online_button=Button((220,70),(200,100,100),"Play Online",(0,0,0),helv)
-play_online_button.center(window_size/2+(300,250))
-online_back_button=Button((220,70),(200,100,100),"Back",(0,0,0),helv)
-online_back_button.center((200,100))
+helv=pg.font.SysFont("helvetica",50*evscl)
+place_button=Button(V((150,40))*evscl,(40,140,40),"Place Tiles",(0,0,0),thickness=1)
+place_button.center(V((900,50))*evscl)
+next_turn_button=Button(V((300,90))*evscl,(30,30,30),"Pass to: ",(200,200,200),font=helv)
+next_turn_button.center((window_size[0]/2,window_size[1]-100*evscl))
+play_button=Button(V((220,70))*evscl,(200,200,200),"Play Game",(0,0,0),helv)
+play_button.center(window_size/2+(0,250*evscl))
+play_online_button=Button(V((220,70))*evscl,(200,100,100),"Play Online",(0,0,0),helv)
+play_online_button.center(window_size/2+V((300,250))*evscl)
+online_back_button=Button(V((220,70))*evscl,(200,100,100),"Back",(0,0,0),helv)
+online_back_button.center(V((200,100))*evscl)
 
-game_over_button=Button((250,80),(50,50,50),"Game Over",(150,50,50),helv)
-game_over_button.center((window_size[0]/2,60))
+game_over_button=Button(V((250,80))*evscl,(50,50,50),"Game Over",(150,50,50),helv)
+game_over_button.center((window_size[0]/2,60*evscl))
 
 number_of_players=4
 player_name_selected=-1
@@ -227,10 +221,10 @@ player_button_colors=[V(i) for i in [(255,0,0),(-70,0,255),(0,255,0),(255,255,0)
 player_button_colors=[(i+3*background_color)/4 for i in player_button_colors]
 player_names=pickle.load(open("player_names.dat","rb"))
 player_button_colors[-1]=background_color*10/9
-player_name_font=pg.font.SysFont("helvetica",30)
-player_name_buttons=[Button((350,70),player_button_colors[-1],"Player {}: ".format(i+1),background_color/3,player_name_font) for i in range(number_of_players)]
+player_name_font=pg.font.SysFont("helvetica",30*evscl)
+player_name_buttons=[Button(V((350,70))*evscl,player_button_colors[-1],"Player {}: ".format(i+1),background_color/3,player_name_font) for i in range(number_of_players)]
 for i,butt in enumerate(player_name_buttons):
-    butt.center(window_size/2+(0,100*(i-1.3)))
+    butt.center(window_size/2+(0,100*(i-1.3)*evscl))
     butt.player_name=player_names[i]
     butt.changeText("Player {}: {}".format(i+1,butt.player_name))
     if butt.player_name:
@@ -238,9 +232,9 @@ for i,butt in enumerate(player_name_buttons):
         butt.size_to_fit()
 show_player_buttons=[]
 
-q_font=pg.font.SysFont("helvetica",70)
+q_font=pg.font.SysFont("helvetica",70*evscl)
 quabble_text=TextBox("Quabble",(0,0,0),q_font)
-quabble_text.center(window_size/2-(0,250))
+quabble_text.center(window_size/2-(0,250*evscl))
 
 wDown = pg.key.get_pressed()[pg.K_w]
 aDown = pg.key.get_pressed()[pg.K_a]
@@ -263,7 +257,7 @@ game_state="title"
 online_player_list=[Player("John"),Player("Smith"),Player("Logan")]
 
 current_score_box=TextBox("Move score: ",(0,0,0))
-current_score_box.center((window_size[0]/2,20))
+current_score_box.center((window_size[0]/2,20*evscl))
 # images={}
 # for color in ["red", "orange", "yellow", "green", "blue", "purple", "teal"]:
 #     images[color]={}
@@ -350,8 +344,10 @@ while True:
             elif event.type==pg.MOUSEBUTTONDOWN:
                 if event.button==4:
                     change_zoom(zoom_slide_rate)
+                    print(zoom)
                 if event.button==5:
                     change_zoom(1/zoom_slide_rate)
+                    print(zoom)
         elif game_state=="title":
             if event.type==pg.MOUSEBUTTONDOWN:
                 mpos=event.pos
@@ -466,10 +462,10 @@ while True:
         online_player_list =n.send(("get players",0))
         # print(onlin_player_list)
         for i,player in enumerate(online_player_list):
-            screen.blit(helv.render(player.name,True,(0,0,0)),(400,i*70))
+            screen.blit(helv.render(player.name,True,(0,0,0)),V((400,i*70))*evscl)
     if game_state in ("playing local","next turn","game over"):
         if going_home:
-            nshift=window_size/2-B.center*zoom-(0,70)
+            nshift=window_size/2-B.center*zoom-(0,70*evscl)
             if (nshift-shift).lenSquared()<4:
                 shift=nshift
                 going_home=False
@@ -505,9 +501,9 @@ while True:
                 game_state = "next turn"
         for i,tile in enumerate(player1.hand):
             if tile_selected==i:
-                pg.draw.rect(screen, background_color * 2 / 3, hand_rects[i], width=4, border_radius=10)
+                pg.draw.rect(screen, background_color * 2 / 3, hand_rects[i], width=4*evscl, border_radius=10*evscl)
             else:
-                pg.draw.rect(screen, background_color * 2 / 3, hand_rects[i], width=2, border_radius=10)
+                pg.draw.rect(screen, background_color * 2 / 3, hand_rects[i], width=2*evscl, border_radius=10*evscl)
         actual_hand=[(i,tile) for i,tile in enumerate(player1.hand) if tile]
         for i,tile in sorted(actual_hand,key=lambda t:sum(t[1].target_pos)):
             if tile:

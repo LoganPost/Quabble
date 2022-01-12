@@ -4,9 +4,11 @@ from Matrix_Class import V
 debug=False
 pg.init()
 
-rad=10 # Corner radius of buttons
+evscl=1
+
+rad=10*evscl # Corner radius of buttons
 class Button():
-    def __init__(self,size,color,text="",text_color=(0,0,0),font=pg.font.SysFont('calibri', 20),thickness=2):
+    def __init__(self,size,color,text="",text_color=(0,0,0),font=pg.font.SysFont('calibri', 20*evscl),thickness=2):
         if debug: # Preconditions: parameters must be the right type
             assert len(size)==2
             assert len(color)==3
@@ -30,6 +32,7 @@ class Button():
         self.pressed=False
         if debug: # Postconditions: The rects should be in same place
             assert self.rect.topleft==self.text_rect.topleft
+        pass
     def changeColor(self,color):
         self.color=V(color)    # Changes color lol
     def changeText(self,text=None,color=None,font=None):    # Changes some properties about the text
@@ -58,11 +61,11 @@ class Button():
         if clicking or self.pressed: # Draw the button; make it different if the button is being pressed.
             pg.draw.rect(surf, self.color*.9, self.rect, border_radius=rad)  # Draw bg, darker if being pressed
             surf.blit(self.text_surface, self.text_rect)  # Write text
-            pg.draw.rect(surf, V(self.color)/3, self.rect, self.thickness*2,border_radius=rad) # Thicker border
+            pg.draw.rect(surf, V(self.color)/3, self.rect, self.thickness*2*evscl,border_radius=rad) # Thicker border
         else:
             pg.draw.rect(surf, self.color, self.rect, border_radius=rad)  # Draw background
             surf.blit(self.text_surface, self.text_rect)  # Write text
-            pg.draw.rect(surf, V(self.color)/3, self.rect, self.thickness,border_radius=rad)
+            pg.draw.rect(surf, V(self.color)/3, self.rect, self.thickness*evscl,border_radius=rad)
     def midleft(self,loc): # Move button by setting the midleft point
         self.rect.midleft=loc   # Move rect
         self.text_rect.center=self.rect.center+self.text_shift  # Recenter text (with shift)
@@ -91,7 +94,7 @@ class Button():
         self.rect.center=cntr
 
 class TextBox():
-    def __init__(self,text="",color=(0,0,0),font=pg.font.SysFont('calibri',20)):
+    def __init__(self,text="",color=(0,0,0),font=pg.font.SysFont('calibri',20*evscl)):
         self.font=font                                      # Font of text
         self.color=color                                    # Color of text
         self.text=text                                      # Words to print
@@ -118,7 +121,7 @@ class TextBox():
         screen.blit(self.surf,self.rect)
 
 class Bonus():
-    def __init__(self,text,color,font=pg.font.SysFont("calibri",40),size=(40,40)):
+    def __init__(self,text,color,font=pg.font.SysFont("calibri",40*evscl),size=V((40,40))*evscl):
         self.text=text
         self.color=V(color)
         self.font=font
